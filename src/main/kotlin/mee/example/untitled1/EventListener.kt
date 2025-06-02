@@ -34,59 +34,58 @@ class EventListener(private val plugin: JavaPlugin): Listener {
     var iron_hoe_use = false
 
     @EventHandler
-    fun onPlayerInteract(event: PlayerInteractEvent){
+    fun onPlayerInteract(event: PlayerInteractEvent) {
         val player = event.player
         var start = true
-        val use_hoe = arrayOf("wood","stone","iron")
+        val use_hoe = arrayOf("wood", "stone", "iron")
         val magen_get_key = "めいろのかぎをとる"
         val battle_get_key = "ばとるのかぎをとる"
         val rast_boss_key = "さいごのかぎをとる"
 
         //鍵を入手
-        if(event.hand != EquipmentSlot.HAND) return//オフハンドのイベントを無視
+        if (event.hand != EquipmentSlot.HAND) return//オフハンドのイベントを無視
         val block = event.clickedBlock
 
         //ゲームスタート処理
-        if(block != null && block.type.name.contains("CHERRY_WALL_SIGN") && start){
+        if (block != null && block.type.name.contains("CHERRY_WALL_SIGN") && start) {
             start = false
             event.isCancelled = true
             val worldstart = player.world
             val st = block.state
-            if(st is Sign){
+            if (st is Sign) {
                 val linestart = st.getSide(Side.FRONT).getLine(0).trim()
-                if(linestart=="げーむすたーと"){
-                    val locationstart  = Location(worldstart,4248.7,86.56250,5846.988)//bedの座標
+                if (linestart == "げーむすたーと") {
+                    val locationstart = Location(worldstart, 4248.7, 86.56250, 5846.988)//bedの座標
                     locationstart.yaw = 0f
                     locationstart.pitch = 0f
                     player.teleport(locationstart)
-                    player.sendTitle("tmep","temper",10,100,20)
-                    val total = 10+100+20
-                    Bukkit.getScheduler().runTaskLater(plugin,Runnable{
+                    player.sendTitle("tmep", "temper", 10, 100, 20)
+                    val total = 10 + 100 + 20
+                    Bukkit.getScheduler().runTaskLater(plugin, Runnable {
                         gamestart(player)
-                    },total.toLong())
+                    }, total.toLong())
                 }
             }
         }
 
         //ダンジョン移動処理
-        if(block != null && block.type.name.contains("OAK_WALL_SIGN")){
-            //event.isCancelled = true
+        if (block != null && block.type.name.contains("OAK_WALL_SIGN")) {
             val state = block.state
-            if(state is Sign){
+            if (state is Sign) {
                 val line = state.getSide(Side.FRONT).getLine(0).trim()
                 player.sendMessage("DEBUG: sign line='$line'")
 
-                if(line.equals(magen_get_key,ignoreCase = false)){//ignoreCaseは文字列の比較を大文字、小文字の区別せず行う
+                if (line.equals(magen_get_key, ignoreCase = false)) {//ignoreCaseは文字列の比較を大文字、小文字の区別せず行う
                     val hoe = ItemStack(Material.WOODEN_HOE)
                     player.inventory.addItem(hoe)
                     player.sendMessage("きのかぎをてにいれた")
                     return
-                }else if(line.equals(battle_get_key,ignoreCase = false)){
+                } else if (line.equals(battle_get_key, ignoreCase = false)) {
                     val hoe = ItemStack(Material.STONE_HOE)
                     player.inventory.addItem(hoe)
                     player.sendMessage("ばとるのかぎをてにいれた")
                     return
-                }else if(line.equals(rast_boss_key,ignoreCase = false)){
+                } else if (line.equals(rast_boss_key, ignoreCase = false)) {
                     val hoe = ItemStack(Material.IRON_HOE)
                     player.inventory.addItem(hoe)
                     player.sendMessage("さいごのかぎをてにいれた")
@@ -98,145 +97,104 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         //カウントダウン処理
 
         //木のクワ：迷路ダンジョンへ
-        if(event.action.toString().contains("RIGHT_CLICK") && player.inventory.itemInMainHand.type== Material.WOODEN_HOE && !wood_hoe_use && !stone_hoe_use && !iron_hoe_use){
+        if (event.action.toString()
+                .contains("RIGHT_CLICK") && player.inventory.itemInMainHand.type == Material.WOODEN_HOE && !wood_hoe_use && !stone_hoe_use && !iron_hoe_use
+        ) {
             wood_hoe_use = true
-            item(player,use_hoe[0])
+            item(player, use_hoe[0])
         }
         //石のクワ：バトルダンジョンへ
-        else if(event.action.toString().contains("RIGHT_CLICK") && player.inventory.itemInMainHand.type== Material.STONE_HOE && !stone_hoe_use && !wood_hoe_use && !iron_hoe_use){
+        else if (event.action.toString()
+                .contains("RIGHT_CLICK") && player.inventory.itemInMainHand.type == Material.STONE_HOE && !stone_hoe_use && !wood_hoe_use && !iron_hoe_use
+        ) {
             stone_hoe_use = true
-            item(player,use_hoe[1])
+            item(player, use_hoe[1])
         }
         //鉄のクワ：最後のダンジョンへ
-        else if(event.action.toString().contains("RIGHT_CLICK") && player.inventory.itemInMainHand.type== Material.IRON_HOE && !iron_hoe_use && !wood_hoe_use && !stone_hoe_use){
+        else if (event.action.toString()
+                .contains("RIGHT_CLICK") && player.inventory.itemInMainHand.type == Material.IRON_HOE && !iron_hoe_use && !wood_hoe_use && !stone_hoe_use
+        ) {
             iron_hoe_use = true
-            item(player,use_hoe[2])
+            item(player, use_hoe[2])
         }
     }
 
-    private fun sendTitle(remainSeconds: Int){
-        Bukkit.getOnlinePlayers().forEach{
-            player -> player.sendTitle(remainSeconds.toString(),"",0,15,0)
-            player.playSound(player.location, Sound.BLOCK_ANVIL_PLACE,1.0f,1.0f)
+    public fun item(player: Player, usehoe: String) {
+        val item = player.inventory.itemInMainHand
+
+        if (item.type != Material.AIR) {
+            player.inventory.setItemInMainHand(null)
         }
+        countdown(player, 10, usehoe)
     }
 
-    private fun countdown(player: Player,seconds: Int,usehoe: String){
+
+    private fun countdown(player: Player, seconds: Int, usehoe: String) {
 
         var remainSeconds = seconds
-        object: BukkitRunnable(){
-            override fun run(){
-                if(0<remainSeconds){
+        object : BukkitRunnable() {
+            override fun run() {
+                if (0 < remainSeconds) {
                     sendTitle(remainSeconds)
                     remainSeconds--
-                }else{
+                } else {
                     cancel()
                     //ワープ処理
                     //木、石、鉄の種類を判定してどの地点にワープするのか決める
-                    teleport_danjon(player,usehoe)
+                    teleport_danjon(player, usehoe)
                 }
             }
-        }.runTaskTimer(plugin,0,20)
+        }.runTaskTimer(plugin, 0, 20)
     }
 
-    public fun teleport_danjon(player: Player,usehoe: String){
+    private fun sendTitle(remainSeconds: Int) {
+        Bukkit.getOnlinePlayers().forEach { player ->
+            player.sendTitle(remainSeconds.toString(), "", 0, 15, 0)
+            player.playSound(player.location, Sound.BLOCK_ANVIL_PLACE, 1.0f, 1.0f)
+        }
+    }
+
+    fun teleport_danjon(player: Player, usehoe: String) {
         val world = player.world
-        val location = when(usehoe){
-            "wood" -> Location(world,227.5,-57.0,11.5)
-            "stone" -> Location(world,204.5,-58.0,11.5)
-            "iron" -> Location(world,215.5,-57.0,17.5)
+        val location = when (usehoe) {
+            "wood" -> Location(world, 227.5, -57.0, 11.5)
+            "stone" -> Location(world, 204.5, -58.0, 11.5)
+            "iron" -> Location(world, 215.5, -57.0, 17.5)
             else -> return
         }
         player.teleport(location)
         player.sendMessage("だんじょんにてれぽーとした")
     }
 
-    public fun item(player: Player,usehoe: String){
-        val item = player.inventory.itemInMainHand
-
-        if(item.type != Material.AIR){
-            player.inventory.setItemInMainHand(null)
-        }
-        countdown(player,10,usehoe)
-    }
-
     @EventHandler
-    fun onPlayerTeleport(event: PlayerTeleportEvent){
-        val goalX  = 215
+    fun onPlayerTeleport(event: PlayerTeleportEvent) {
+        val goalX = 215
         val goalY = -57
         val goalZ = 11
         val to = event.to ?: return
-        if(to.blockX == goalX && to.blockY == goalY && to.blockZ == goalZ){
+        if (to.blockX == goalX && to.blockY == goalY && to.blockZ == goalZ) {
             wood_hoe_use = false
             stone_hoe_use = false
             iron_hoe_use = false
         }
     }
 
-    var playerLevel = 1 //プレイヤーのレベル
-    var EnemyLevel = arrayOf(1,1);//敵のレベル[0]がゾンビ、[1]がスライム
-    var nextExp = 10//レベルアップに必要な経験値
-    var nowExp = 0//現在の経験値
-    var totalExp = 0
-    val expcc = 1.5//敵のレベルに応じて取得出来る経験値を補正する値
-
-    @EventHandler
-    fun entityKill(event: EntityDeathEvent){
-        val killedentity = event.entity
-        val killer = killedentity.killer ?: return
-        if(killedentity is Zombie){
-            expcount(EnemyLevel[0],killer)
-        }else if(killedentity is Slime){
-            expcount(EnemyLevel[1],killer)
-        }
+    fun gamestart(player: Player){
+        //木の剣を手に入れる
+        val text = "まずは木の剣を手に入れよう！"
+        player.sendMessage(text)
+        showScoreboard(player,text)
     }
 
-    private fun expcount(enemylev: Int,killer: Player){
-        var  lp = expcc.pow(enemylev - 1.0)
-        nowExp += ((nextExp*lp)/7).toInt()
-        totalExp += ((nextExp*lp)/7).toInt()
-        showScoreboard(killer,playerLevel,nowExp,nextExp)
-        if(nowExp>=nextExp){
-            levelup(killer)
-        }
-    }
-
-    private fun levelup(killer: Player){
-        if(playerLevel<10){
-            playerLevel++
-        }
-        if(EnemyLevel[0]<5){
-            EnemyLevel[0]++
-        }
-        if(EnemyLevel[1]<5){
-            EnemyLevel[1]++
-        }
-
-        nowExp -= nextExp
-        val templp = expcc.pow(playerLevel - 1.0)
-        nextExp *= templp.toInt()
-        showScoreboard(killer,playerLevel,nowExp,nextExp)
-        if(nextExp<=nowExp){
-            levelup(killer)
-        }
-    }
-
-    public fun showScoreboard(player: Player,playerLevel: Int,nowExp: Int,nextExp: Int){
+    public fun showScoreboard(player: Player,message: String){
         val manager = Bukkit.getScoreboardManager() ?: return
-        val board = manager.newScoreboard
-        val objective = board.registerNewObjective("playerStats",Criteria.DUMMY,"${ChatColor.BLACK}${ChatColor.BOLD}ステータス")
+        val board = manager.newScoreboard//スコアボードの土台、白紙だと考える
+        val objective = board.registerNewObjective("mission",Criteria.DUMMY,"${ChatColor.BLACK}${ChatColor.BOLD}もくひょう")//白紙の上に貼る文字、数字の定義をする
         objective.displaySlot = DisplaySlot.SIDEBAR
-
-        val playerlevel = objective.getScore("${ChatColor.GREEN}レベル")
-        playerlevel.score = playerLevel
-        val next = objective.getScore("次のレベルまであと")
-        next.score = nextExp-nowExp
-        player.scoreboard = board
+        val mit = objective.getScore(message)
+        mit.setScore(1)
+        player.setScoreboard(board)
     }
+
 }
 
-
-    public fun gamestart(player: Player){
-        //木の剣を手に入れる
-        player.sendMessage("まずは木の剣を手に入れよう！")
-    }
