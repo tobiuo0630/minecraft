@@ -12,11 +12,12 @@ import org.bukkit.plugin.java.JavaPlugin
 class EventListener(private val plugin: JavaPlugin): Listener {
     val signEventInstance = signEvent
     var gameStartJudge = true
+    val mission = HashMap<Int,String>()
 
     @EventHandler
     private fun onPlayerInteract(event: PlayerInteractEvent) {//PlayerInteractEventはプレイヤーがブロックを右または左クリックを行ったときに呼び出される
         val player = event.player//イベントを起こしたプレイヤーの情報が入る。
-        val block = event.clickedBlock
+        val block = event.clickedBlock//クリックしたブロックの情報を保持
         //スタート処理
         if (block != null && block.type.name.contains("ORK_WALL_SIGN") && gameStartJudge) {
             gameStartJudge = false
@@ -29,6 +30,8 @@ class EventListener(private val plugin: JavaPlugin): Listener {
         val clickedEntity = event.rightClicked
         if(clickedEntity is Villager){
             event.isCancelled = true
+
         }
+
     }
 }
