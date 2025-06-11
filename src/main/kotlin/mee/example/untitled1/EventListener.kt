@@ -28,7 +28,7 @@ class EventListener(private val plugin: JavaPlugin): Listener {
     private fun onPlayerInteractVillager(event: PlayerInteractEntityEvent){
         val clickedEntity = event.rightClicked
         if(clickedEntity is Villager){
-
+            event.isCancelled = true
         }
     }
 }
