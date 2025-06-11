@@ -1,8 +1,15 @@
 package mee.example.untitled1
 
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
+import org.bukkit.block.Sign
+import org.bukkit.block.sign.Side
+import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.plugin.java.JavaPlugin
+
 
 object Mazegene {
     private const val WALL_HEIGHT=2
