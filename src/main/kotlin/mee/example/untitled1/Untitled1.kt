@@ -6,6 +6,9 @@ class Untitled1 : JavaPlugin() {
 
     override fun onEnable() {
         // Plugin startup logic
+        if(!dataFolder.exists()){
+            dataFolder.mkdirs()
+        }
         server.pluginManager.registerEvents(EventListener(this),this)
         getCommand("mazegen")?.setExecutor(MazegenCommand(this))
 

@@ -7,6 +7,6 @@ commands:
   mazegen:
     usage: "/<command>"
     description: "迷路の生成"
-  key:
+  getpouch:
     usage: "/<command>"
-    description: "ダンジョンスタートの鍵を入手する"
+    description: "財布を入手"
