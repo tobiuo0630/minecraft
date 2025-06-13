@@ -25,3 +25,36 @@ $ git restore <ファイル名>
 $ git restore -staged <ファイル名>
 ローカルで操作
 gitはイメージ
+
+スコープとは
+変数や関数が使える範囲のこと
+fun example() {
+    val a = 10
+    if (a > 5) {
+        val b = 20
+        println(a) // ✅ OK
+        println(b) // ✅ OK
+    }
+
+    println(b) // ❌ エラー：bはif文の中だけで使える
+}
+aは関数全体で使える
+bはif文の中だけ
+
+val temp = if(){}else{}変数に代入される値としてifが使える
+
+スコープ関数
+ローカル変数のスコープを明示的に表せる
+fun example() {
+    val a = 10
+    if (a > 5) {
+        run{
+            val b = 20
+            println(a) // ✅ OK
+            println(b) // ✅ OK
+            }
+    }
+    println(b) // ❌ エラー：bはif文の中だけで使える
+}
+こうすることで、runの中に定義されている変数bはifの中だけで使えるとわかる。つまりif文の外でprintln(b)と書くことを防げる
+注意：スコープ関数を適用すれば、スコープの範囲を広げられるという意味ではない。
