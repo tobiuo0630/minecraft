@@ -15,7 +15,6 @@ object signEvent {
     val battle_get_key = "ばとるのかぎをとる"
     val rast_boss_key = "さいごのかぎをとる"
 
-
     fun singWriteStart(plugin: JavaPlugin, event: PlayerInteractEvent){
         val player = event.player
         //鍵を入手
